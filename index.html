@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEMPO — Delivery Intelligence for Product Teams</title>
+  <meta name="description" content="TEMPO connects Linear, GitHub, Notion, and Slack into one intelligence layer. See how your team actually ships.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+
+  <!-- Smooth scroll via CSS -->
+
+  <style>
+    /* ============================================
+       RESET & BASE
+    ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* Colors */
+      --c-black: #0A0A0A;
+      --c-white: #FAFAFA;
+      --c-orange: #E8552D;
+      --c-orange-light: #F2764E;
+      --c-gray-100: #F2F2F0;
+      --c-gray-200: #E5E5E3;
+      --c-gray-400: #999896;
+      --c-gray-600: #666563;
+      --c-gray-800: #333231;
+
+      /* Typography */
+      --font-heading: 'Space Grotesk', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+
+      /* Spacing */
+      --section-pad: clamp(6rem, 12vw, 12rem);
+      --grid-gap: clamp(1.25rem, 2.5vw, 2.5rem);
+      --side-pad: clamp(1.25rem, 4vw, 2.5rem);
+
+      /* Scaling System (OSMO) */
+      --size-unit: 16;
+      --size-container-ideal: 1440;
+      --size-container-min: 992px;
+      --size-container-max: 1920px;
+      --size-container: clamp(var(--size-container-min), 100vw, var(--size-container-max));
+      --size-font: calc(var(--size-container) / (var(--size-container-ideal) / var(--size-unit)));
+    }
+
+    @media screen and (max-width: 991px) {
+      :root {
+        --size-container-ideal: 834;
+        --size-container-min: 768px;
+        --size-container-max: 991px;
+      }
+    }
+
+    @media screen and (max-width: 767px) {
+      :root {
+        --size-container-ideal: 390;
+        --size-container-min: 320px;
+        --size-container-max: 767px;
+      }
+    }
+
+    html {
+      font-size: var(--size-font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--c-white);
+      color: var(--c-black);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    img { max-width: 100%; display: block; }
+
+    /* Selection */
+    ::selection { background: var(--c-orange); color: var(--c-white); }
+
+    /* ============================================
+       GRAIN OVERLAY
+    ============================================ */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px;
+    }
+
+    /* ============================================
+       LAYOUT UTILITIES
+    ============================================ */
+    .container {
+      width: 100%;
+      max-width: 82rem;
+      margin: 0 auto;
+      padding-left: var(--side-pad);
+      padding-right: var(--side-pad);
+    }
+
+    .section {
+      padding-top: var(--section-pad);
+      padding-bottom: var(--section-pad);
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--c-black);
+      opacity: 0.1;
+    }
+
+    /* ============================================
+       TYPOGRAPHY
+    ============================================ */
+    .eyebrow {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--c-gray-600);
+      line-height: 1;
+    }
+
+    .eyebrow--orange { color: var(--c-orange); }
+
+    .h-display {
+      font-family: var(--font-heading);
+      font-size: clamp(3rem, 7.5vw, 6.5rem);
+      font-weight: 500;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .h-section {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .h-card {
+      font-family: var(--font-heading);
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .p-large {
+      font-size: clamp(1rem, 1.4vw, 1.25rem);
+      line-height: 1.5;
+      color: var(--c-gray-600);
+      max-width: 32em;
+    }
+
+    .p-body {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--c-gray-600);
+    }
+
+    .num-large {
+      font-family: var(--font-heading);
+      font-size: clamp(4rem, 8vw, 7rem);
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--c-orange);
+    }
+
+    .num-section {
+      font-family: var(--font-heading);
+      font-size: clamp(6rem, 14vw, 12rem);
+      font-weight: 300;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      opacity: 0.06;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    /* ============================================
+       BUTTONS
+    ============================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-heading);
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      padding: 0.875rem 1.75rem;
+      border-radius: 0.375rem;
+      transition: all 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn--primary {
+      background: var(--c-black);
+      color: var(--c-white);
+    }
+    .btn--primary:hover {
+      background: var(--c-gray-800);
+      transform: translateY(-1px);
+    }
+
+    .btn--outline {
+      background: transparent;
+      color: var(--c-black);
+      border: 1px solid var(--c-gray-200);
+    }
+    .btn--outline:hover {
+      border-color: var(--c-black);
+    }
+
+    .btn--large {
+      padding: 1.125rem 2.25rem;
+      font-size: 1rem;
+    }
+
+    .btn--orange {
+      background: var(--c-orange);
+      color: var(--c-white);
+    }
+    .btn--orange:hover {
+      background: var(--c-orange-light);
+      transform: translateY(-1px);
+    }
+
+    .btn__arrow {
+      transition: transform 0.4s cubic-bezier(0.625, 0.05, 0, 1);
+    }
+    .btn:hover .btn__arrow {
+      transform: translateX(3px);
+    }
+
+    /* ============================================
+       UNDERLINE LINK (OSMO)
+    ============================================ */
+    [data-underline-link] {
+      text-decoration: none;
+      position: relative;
+    }
+    [data-underline-link]::before {
+      content: "";
+      position: absolute;
+      bottom: -0.0625em;
+      left: 0;
+      width: 100%;
+      height: 0.0625em;
+      background-color: currentColor;
+      transition: transform 0.735s cubic-bezier(0.625, 0.05, 0, 1);
+      transform-origin: right;
+      transform: scaleX(0) rotate(0.001deg);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      [data-underline-link]:hover::before {
+        transform-origin: left;
+        transform: scaleX(1) rotate(0.001deg);
+      }
+    }
+
+    /* ============================================
+       NAVIGATION
+    ============================================ */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.25rem var(--side-pad);
+      pointer-events: none;
+    }
+
+    .nav__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 82rem;
+      margin: 0 auto;
+    }
+
+    .nav__logo {
+      pointer-events: auto;
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .nav__logo-mark {
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--c-orange);
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav__logo-mark::after {
+      content: '';
+      width: 0.375rem;
+      height: 0.375rem;
+      background: var(--c-white);
+      border-radius: 50%;
+    }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      pointer-events: auto;
+    }
+
+    .nav__link {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--c-gray-600);
+      transition: color 0.3s;
+    }
+    .nav__link:hover { color: var(--c-black); }
+
+    .nav__bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(250, 250, 250, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: -1;
+    }
+
+    .nav--scrolled .nav__bg { opacity: 1; }
+
+    @media (max-width: 767px) {
+      .nav__links { gap: 1rem; }
+      .nav__link--hide-mobile { display: none; }
+    }
+
+    /* ============================================
+       HERO
+    ============================================ */
+    .hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 var(--side-pad);
+      padding-bottom: clamp(3rem, 6vw, 6rem);
+      padding-top: 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero__content {
+      max-width: 82rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero__eyebrow {
+      margin-bottom: 2rem;
+    }
+
+    .hero__title {
+      margin-bottom: clamp(2rem, 4vw, 3rem);
+    }
+
+    .hero__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .hero__description {
+      max-width: 28rem;
+    }
+
+    .hero__cta {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .hero__scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.3;
+    }
+
+    .hero__scroll-line {
+      width: 1px;
+      height: 3rem;
+      background: var(--c-black);
+      transform-origin: top;
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { transform: scaleY(0.3); opacity: 0.3; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* ============================================
+       PROBLEM SECTION
+    ============================================ */
+    .problem {
+      background: var(--c-black);
+      color: var(--c-white);
+    }
+
+    .problem__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--grid-gap);
+    }
+
+    .problem__left {
+      padding-right: clamp(2rem, 4vw, 4rem);
+    }
+
+    .problem__headline {
+      color: var(--c-white);
+      margin-bottom: 1.5rem;
+    }
+
+    .problem__text {
+      color: rgba(255,255,255,0.5);
+      max-width: 24em;
+    }
+
+    .problem__cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .problem__card {
+      padding: 1.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+
+    .problem__card-num {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--c-orange);
+      flex-shrink: 0;
+      padding-top: 0.25rem;
+    }
+
+    .problem__card-text {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.7);
+    }
+
+    @media (max-width: 767px) {
+      .problem__grid {
+        grid-template-columns: 1fr;
+      }
+      .problem__left {
+        padding-right: 0;
+      }
+    }
+
+    /* ============================================
+       HOW IT WORKS SECTION
+    ============================================ */
+    .how {
+      position: relative;
+    }
+
+    .how__header {
+      margin-bottom: clamp(4rem, 8vw, 8rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .how__pillars {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .pillar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--grid-gap);
+      padding: clamp(3rem, 6vw, 5rem) 0;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .pillar__left {
+      position: relative;
+    }
+
+    .pillar__num {
+      font-family: var(--font-heading);
+      font-size: clamp(6rem, 12vw, 10rem);
+      font-weight: 300;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      color: var(--c-orange);
+      opacity: 0.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .pillar__title {
+      margin-bottom: 1rem;
+    }
+
+    .pillar__tag {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.375rem 0.75rem;
+      border: 1px solid var(--c-gray-200);
+      border-radius: 2rem;
+      color: var(--c-gray-600);
+    }
+
+    .pillar__right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .pillar__description {
+      margin-bottom: 2rem;
+    }
+
+    .pillar__features {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .pillar__feature {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9375rem;
+      color: var(--c-gray-600);
+    }
+
+    .pillar__feature-dot {
+      width: 0.375rem;
+      height: 0.375rem;
+      background: var(--c-orange);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pillar__visual {
+      background: var(--c-gray-100);
+      border-radius: 0.75rem;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pillar__visual-inner {
+      padding: 2rem;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Mini metric cards inside visual */
+    .mini-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .mini-metric {
+      background: var(--c-white);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mini-metric__label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c-gray-400);
+      font-weight: 500;
+    }
+
+    .mini-metric__value {
+      font-family: var(--font-heading);
+      font-size: 1.75rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .mini-metric__bar {
+      height: 0.25rem;
+      background: var(--c-gray-100);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .mini-metric__bar-fill {
+      height: 100%;
+      border-radius: 1rem;
+      background: var(--c-orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .mini-metric__bar-fill.is--active { transform: scaleX(1); }
+
+    .mini-metric__bar-fill--green { background: #2ecc71; }
+    .mini-metric__bar-fill--yellow { background: #f1c40f; }
+
+    /* Health signals */
+    .health-signals {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .health-signal {
+      background: var(--c-white);
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      font-size: 0.875rem;
+    }
+
+    .health-signal__icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+    }
+
+    .health-signal__icon--warn { background: #FFF3E0; color: #E65100; }
+    .health-signal__icon--ok { background: #E8F5E9; color: #2E7D32; }
+    .health-signal__icon--info { background: #E3F2FD; color: #1565C0; }
+
+    .health-signal__text { color: var(--c-gray-800); }
+    .health-signal__meta {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--c-gray-400);
+      white-space: nowrap;
+    }
+
+    /* AI Coach visual */
+    .coach-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .coach-bubble {
+      background: var(--c-white);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--c-gray-800);
+      position: relative;
+      max-width: 90%;
+    }
+
+    .coach-bubble--ai {
+      border-left: 3px solid var(--c-orange);
+    }
+
+    .coach-bubble__label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--c-orange);
+      margin-bottom: 0.375rem;
+    }
+
+    @media (max-width: 767px) {
+      .pillar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================
+       INTEGRATIONS
+    ============================================ */
+    .integrations {
+      background: var(--c-gray-100);
+    }
+
+    .integrations__header {
+      text-align: center;
+      margin-bottom: clamp(3rem, 6vw, 5rem);
+    }
+
+    .integrations__header .eyebrow {
+      margin-bottom: 1rem;
+    }
+
+    .integrations__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+      gap: 1px;
+      background: rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    .integration-card {
+      background: var(--c-white);
+      padding: clamp(2rem, 4vw, 3rem) 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    .integration-card:hover { background: var(--c-gray-100); }
+
+    .integration-card__icon {
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .integration-card__icon svg {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .integration-card__name {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      font-size: 0.9375rem;
+      letter-spacing: -0.01em;
+    }
+
+    .integration-card__status {
+      font-size: 0.6875rem;
+      color: var(--c-gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .integration-card__status--live { color: #2E7D32; }
+
+    /* ============================================
+       STATS SECTION
+    ============================================ */
+    .stats {
+      border-top: 1px solid rgba(0,0,0,0.1);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .stats__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .stat {
+      padding: clamp(2rem, 4vw, 3rem);
+      text-align: center;
+      position: relative;
+    }
+
+    .stat:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 20%;
+      height: 60%;
+      width: 1px;
+      background: rgba(0,0,0,0.1);
+    }
+
+    .stat__value {
+      font-family: var(--font-heading);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat__label {
+      font-size: 0.875rem;
+      color: var(--c-gray-600);
+    }
+
+    @media (max-width: 767px) {
+      .stats__grid {
+        grid-template-columns: 1fr;
+      }
+      .stat:not(:last-child)::after {
+        right: 20%;
+        top: auto;
+        bottom: 0;
+        height: 1px;
+        width: 60%;
+      }
+    }
+
+    /* ============================================
+       HIGHLIGHT TEXT SECTION
+    ============================================ */
+    .manifesto {
+      background: var(--c-black);
+      color: var(--c-white);
+      padding: clamp(8rem, 16vw, 16rem) var(--side-pad);
+    }
+
+    .manifesto__text {
+      max-width: 52rem;
+      margin: 0 auto;
+      font-family: var(--font-heading);
+      font-size: clamp(1.75rem, 3.5vw, 3rem);
+      font-weight: 400;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    /* ============================================
+       PRICING
+    ============================================ */
+    .pricing__header {
+      text-align: center;
+      margin-bottom: clamp(3rem, 6vw, 5rem);
+    }
+
+    .pricing__header .eyebrow { margin-bottom: 1rem; }
+
+    .pricing__header .p-large {
+      margin: 1.5rem auto 0;
+      text-align: center;
+    }
+
+    .pricing__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    .price-card {
+      background: var(--c-white);
+      padding: clamp(2rem, 3vw, 2.5rem);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-card--featured {
+      background: var(--c-black);
+      color: var(--c-white);
+    }
+
+    .price-card__name {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      font-size: 1.125rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-card__desc {
+      font-size: 0.8125rem;
+      color: var(--c-gray-400);
+      margin-bottom: 1.5rem;
+    }
+
+    .price-card--featured .price-card__desc { color: rgba(255,255,255,0.4); }
+
+    .price-card__price {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-card__period {
+      font-size: 0.8125rem;
+      color: var(--c-gray-400);
+      margin-bottom: 2rem;
+    }
+
+    .price-card--featured .price-card__period { color: rgba(255,255,255,0.4); }
+
+    .price-card__features {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      margin-bottom: 2rem;
+      flex: 1;
+    }
+
+    .price-card__feature {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 0.875rem;
+      color: var(--c-gray-600);
+    }
+
+    .price-card--featured .price-card__feature { color: rgba(255,255,255,0.6); }
+
+    .price-card__check {
+      width: 1rem;
+      height: 1rem;
+      flex-shrink: 0;
+      color: var(--c-orange);
+    }
+
+    .price-card__btn {
+      width: 100%;
+      justify-content: center;
+      margin-top: auto;
+    }
+
+    @media (max-width: 767px) {
+      .pricing__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================
+       FINAL CTA
+    ============================================ */
+    .final-cta {
+      background: var(--c-orange);
+      color: var(--c-white);
+      text-align: center;
+      padding: clamp(6rem, 12vw, 10rem) var(--side-pad);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta__num {
+      font-family: var(--font-heading);
+      font-size: clamp(12rem, 30vw, 24rem);
+      font-weight: 700;
+      line-height: 0.7;
+      letter-spacing: -0.06em;
+      opacity: 0.1;
+      position: absolute;
+      bottom: -0.1em;
+      right: -0.02em;
+      pointer-events: none;
+      color: var(--c-white);
+    }
+
+    .final-cta__content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .final-cta .eyebrow {
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1.5rem;
+    }
+
+    .final-cta .h-display {
+      margin-bottom: 1.5rem;
+    }
+
+    .final-cta .p-large {
+      color: rgba(255,255,255,0.7);
+      margin: 0 auto 2.5rem;
+      text-align: center;
+    }
+
+    .final-cta .btn--primary {
+      background: var(--c-white);
+      color: var(--c-black);
+    }
+    .final-cta .btn--primary:hover {
+      background: var(--c-gray-100);
+    }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    .footer {
+      background: var(--c-black);
+      color: var(--c-white);
+      padding: clamp(3rem, 6vw, 5rem) var(--side-pad) clamp(2rem, 4vw, 3rem);
+    }
+
+    .footer__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-bottom: clamp(4rem, 8vw, 8rem);
+      flex-wrap: wrap;
+    }
+
+    .footer__logo {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .footer__logo .nav__logo-mark {
+      background: var(--c-orange);
+    }
+
+    .footer__columns {
+      display: flex;
+      gap: clamp(3rem, 6vw, 5rem);
+    }
+
+    .footer__col-title {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 1rem;
+    }
+
+    .footer__col-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer__col-link {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.6);
+      transition: color 0.3s;
+    }
+    .footer__col-link:hover { color: var(--c-white); }
+
+    .footer__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer__copy {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .footer__bottom-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer__bottom-link {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      transition: color 0.3s;
+    }
+    .footer__bottom-link:hover { color: rgba(255,255,255,0.6); }
+
+    /* ============================================
+       LOADING SCREEN
+    ============================================ */
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: var(--c-black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: loaderExit 0.6s cubic-bezier(0.76, 0, 0.24, 1) 2.2s forwards;
+    }
+
+    @keyframes loaderExit {
+      0%   { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; visibility: hidden; }
+    }
+
+    .loader__logo {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--c-white);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: loaderLogoIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+    }
+
+    @keyframes loaderLogoIn {
+      from { opacity: 0; transform: translateY(0.4em); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader__logo-mark {
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+      background: var(--c-orange);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .loader__bar-wrap {
+      width: 6rem;
+      height: 2px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 1rem;
+      overflow: hidden;
+      opacity: 0;
+      animation: loaderBarWrapIn 0.4s ease 0.6s forwards;
+    }
+
+    @keyframes loaderBarWrapIn {
+      to { opacity: 1; }
+    }
+
+    .loader__bar {
+      width: 0%;
+      height: 100%;
+      background: var(--c-orange);
+      border-radius: 1rem;
+      animation: loaderBarFill 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards;
+    }
+
+    @keyframes loaderBarFill {
+      from { width: 0%; }
+      to   { width: 100%; }
+    }
+
+    /* ============================================
+       CSS REVEAL ANIMATIONS (fallback for non-JS / headless)
+    ============================================ */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(2em); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero__eyebrow,
+    .hero__title,
+    .hero__description,
+    .hero__cta,
+    .hero__scroll-indicator {
+      animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+    .hero__eyebrow { animation-delay: 2.4s; }
+    .hero__title { animation-delay: 2.55s; }
+    .hero__description { animation-delay: 2.7s; }
+    .hero__cta { animation-delay: 2.85s; }
+    .hero__scroll-indicator { animation-delay: 3.0s; }
+
+    /* ============================================
+       ODOMETER OVERRIDES
+    ============================================ */
+    [data-odometer-element] {
+      display: inline-flex;
+      align-items: center;
+      font-variant-numeric: tabular-nums;
+    }
+    [data-odometer-part="mask"],
+    [data-odometer-part="static"] {
+      display: inline-block;
+      overflow: clip;
+      padding: 0.05em;
+      margin: -0.05em;
+    }
+    [data-odometer-part="roller"] {
+      display: block;
+      white-space: pre;
+      text-align: center;
+      will-change: transform;
+    }
+  </style>
+</head>
+<body>
+  <!-- Grain -->
+  <div class="grain"></div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="loader__logo">
+      <span class="loader__logo-mark"></span>
+      TEMPO
+    </div>
+    <div class="loader__bar-wrap">
+      <div class="loader__bar"></div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav__bg"></div>
+    <div class="nav__inner">
+      <a href="#" class="nav__logo">
+        <span class="nav__logo-mark"></span>
+        TEMPO
+      </a>
+      <div class="nav__links">
+        <a href="#how" class="nav__link nav__link--hide-mobile">How it works</a>
+        <a href="#pricing" class="nav__link nav__link--hide-mobile">Pricing</a>
+        <a href="#cta" class="btn btn--primary">
+          Get early access
+          <svg class="btn__arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ==================== HERO ==================== -->
+    <section class="hero" id="heroSection">
+      <div class="hero__content">
+        <p class="eyebrow eyebrow--orange hero__eyebrow">Delivery Intelligence</p>
+        <h1 class="h-display hero__title">See how your<br>team actually ships.</h1>
+        <div class="hero__bottom">
+          <p class="p-large hero__description">
+            TEMPO connects Linear, GitHub, Notion, and Slack into one intelligence layer. No new dashboards to check. No behavior to change. Just clarity, where you already work.
+          </p>
+          <div class="hero__cta">
+            <a href="#cta" class="btn btn--primary btn--large">
+              Get early access
+              <svg class="btn__arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#how" class="btn btn--outline btn--large">See how it works</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero__scroll-indicator">
+        <div class="hero__scroll-line"></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ==================== STATS BAR ==================== -->
+    <section class="stats section" style="padding-top:0;padding-bottom:0;">
+      <div class="container">
+        <div class="stats__grid" data-odometer-group>
+          <div class="stat">
+            <div class="stat__value" data-odometer-element data-odometer-start="0" data-odometer-duration="2">8-12</div>
+            <div class="stat__label">tools per product team</div>
+          </div>
+          <div class="stat">
+            <div class="stat__value" data-odometer-element data-odometer-start="0" data-odometer-duration="2">2.3x</div>
+            <div class="stat__label">longer cycle time on unclear specs</div>
+          </div>
+          <div class="stat">
+            <div class="stat__value" data-odometer-element data-odometer-start="0" data-odometer-duration="2">0</div>
+            <div class="stat__label">unified cross-tool views available today</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROBLEM ==================== -->
+    <section class="problem section">
+      <div class="container">
+        <div class="problem__grid">
+          <div class="problem__left">
+            <p class="eyebrow" style="color:var(--c-orange);margin-bottom:1.5rem;">The Problem</p>
+            <h2 class="h-section problem__headline">Your tools see fragments.<br>You need the full picture.</h2>
+            <p class="p-large problem__text">
+              Linear knows what's being built. GitHub knows how code flows. Notion knows how clearly things are defined. Slack knows where conversations stall. But nothing connects the dots.
+            </p>
+          </div>
+          <div class="problem__cards">
+            <div class="problem__card">
+              <span class="problem__card-num">01</span>
+              <span class="problem__card-text">PRs and specs sit waiting for review. Nobody knows how long or why.</span>
+            </div>
+            <div class="problem__card">
+              <span class="problem__card-num">02</span>
+              <span class="problem__card-text">Tickets reach development with missing context, causing rework that nobody tracks.</span>
+            </div>
+            <div class="problem__card">
+              <span class="problem__card-num">03</span>
+              <span class="problem__card-text">Issues are stuck. The blocking reason is buried in a Slack thread from last Tuesday.</span>
+            </div>
+            <div class="problem__card">
+              <span class="problem__card-num">04</span>
+              <span class="problem__card-text">Cycle time numbers look good but your workflow setup makes the data meaningless.</span>
+            </div>
+            <div class="problem__card">
+              <span class="problem__card-num">05</span>
+              <span class="problem__card-text">Retrospectives are based on memory. Insights evaporate before anyone acts.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MANIFESTO ==================== -->
+    <section class="manifesto">
+      <p class="manifesto__text" data-highlight-text data-highlight-fade="0.15">
+        Every tool captures a fragment. TEMPO reads the signals across all of them and surfaces what matters, inside the tools your team already uses. No new tabs. No dashboards to forget. Just the right insight, at the right moment.
+      </p>
+    </section>
+
+    <!-- ==================== HOW IT WORKS ==================== -->
+    <section class="section" id="how">
+      <div class="container">
+        <div class="how__header">
+          <div>
+            <p class="eyebrow" style="margin-bottom:1rem;">How it works</p>
+            <h2 class="h-section">Three pillars.<br>One intelligence layer.</h2>
+          </div>
+          <p class="p-large" style="max-width:24rem;">TEMPO reads your workflow signals passively, correlates patterns across tools, and delivers insights where you already work.</p>
+        </div>
+
+        <div class="how__pillars">
+          <!-- Pillar 01: Flow Metrics -->
+          <div class="pillar">
+            <div class="pillar__left">
+              <div class="pillar__num">01</div>
+              <h3 class="h-card pillar__title">Flow Metrics</h3>
+              <span class="pillar__tag">Measure</span>
+            </div>
+            <div class="pillar__right">
+              <p class="p-large pillar__description">
+                Cycle time, lead time, throughput, WIP age, flow efficiency. Computed automatically from real workflow data. But first, TEMPO audits your setup. If the data isn't trustworthy, it tells you exactly what to fix.
+              </p>
+              <div class="pillar__features">
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Metric-readiness score (0-100)</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Stage-level cycle time breakdown</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Review queue depth tracking</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Specific remediation steps</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pillar 02: Health Audit -->
+          <div class="pillar">
+            <div class="pillar__left">
+              <div class="pillar__num">02</div>
+              <h3 class="h-card pillar__title">Health Audit</h3>
+              <span class="pillar__tag">Detect</span>
+            </div>
+            <div class="pillar__right">
+              <p class="p-large pillar__description">
+                The first tool that correlates signals across your entire product stack. Missing estimates, stale specs, blocked issues, inconsistent workflows. TEMPO detects anti-patterns no single tool can see.
+              </p>
+              <div class="pillar__features">
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Cross-tool signal correlation</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Spec quality scoring from Notion</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Stale PR detection from GitHub</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Blocker-to-Slack thread mapping</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pillar 03: AI Coach -->
+          <div class="pillar">
+            <div class="pillar__left">
+              <div class="pillar__num">03</div>
+              <h3 class="h-card pillar__title">AI Coach</h3>
+              <span class="pillar__tag">Act</span>
+            </div>
+            <div class="pillar__right">
+              <p class="p-large pillar__description">
+                Proactive AI assistance at the exact moment it's needed. Auto-generated retrospectives with real evidence. Sprint planning based on actual cycle times. Experiment suggestions backed by data, not gut feeling.
+              </p>
+              <div class="pillar__features">
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Evidence-backed retrospectives</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Sprint capacity recommendations</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>Bottleneck experiments</div>
+                <div class="pillar__feature"><span class="pillar__feature-dot"></span>In-context delivery nudges</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== INTEGRATIONS ==================== -->
+    <section class="integrations section">
+      <div class="container">
+        <div class="integrations__header">
+          <p class="eyebrow">Integrations</p>
+          <h2 class="h-section">Connects to your stack.</h2>
+        </div>
+        <div class="integrations__grid">
+          <div class="integration-card">
+            <div class="integration-card__icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M3 7l6 4.5L3 16V7z" fill="#5E6AD2"/><path d="M21 7l-6 4.5L21 16V7z" fill="#5E6AD2"/><path d="M9 9l3 2.25L15 9v6l-3 2.25L9 15V9z" fill="#5E6AD2"/></svg>
+            </div>
+            <span class="integration-card__name">Linear</span>
+            <span class="integration-card__status integration-card__status--live">Phase 1</span>
+          </div>
+          <div class="integration-card">
+            <div class="integration-card__icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.49.5.09.682-.218.682-.483 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z" fill="#333"/></svg>
+            </div>
+            <span class="integration-card__name">GitHub</span>
+            <span class="integration-card__status integration-card__status--live">Phase 1</span>
+          </div>
+          <div class="integration-card">
+            <div class="integration-card__icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4V4z" fill="#fff" stroke="#333" stroke-width="1.5"/><path d="M8 10h8M8 14h5" stroke="#333" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <span class="integration-card__name">Notion</span>
+            <span class="integration-card__status integration-card__status--live">Phase 1</span>
+          </div>
+          <div class="integration-card">
+            <div class="integration-card__icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M5.042 15.165a2.528 2.528 0 01-2.52 2.523A2.528 2.528 0 010 15.165a2.527 2.527 0 012.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 012.521-2.52 2.527 2.527 0 012.521 2.52v6.313A2.528 2.528 0 018.834 24a2.528 2.528 0 01-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 01-2.521-2.52A2.528 2.528 0 018.834 0a2.528 2.528 0 012.521 2.522v2.52H8.834zm0 1.271a2.527 2.527 0 012.521 2.521 2.527 2.527 0 01-2.521 2.521H2.522A2.528 2.528 0 010 8.834a2.528 2.528 0 012.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 012.522-2.521A2.528 2.528 0 0124 8.834a2.527 2.527 0 01-2.522 2.521h-2.522V8.834zm-1.268 0a2.527 2.527 0 01-2.523 2.521 2.527 2.527 0 01-2.52-2.521V2.522A2.527 2.527 0 0115.165 0a2.528 2.528 0 012.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 012.523 2.522A2.528 2.528 0 0115.165 24a2.527 2.527 0 01-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 01-2.52-2.523 2.526 2.526 0 012.52-2.52h6.313A2.527 2.527 0 0124 15.165a2.528 2.528 0 01-2.522 2.523h-6.313z" fill="#E01E5A"/></svg>
+            </div>
+            <span class="integration-card__name">Slack</span>
+            <span class="integration-card__status">Phase 2</span>
+          </div>
+          <div class="integration-card">
+            <div class="integration-card__icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z" fill="#F24E1E" opacity="0.3"/><path d="M8 16a4 4 0 004-4V8H8a4 4 0 000 8z" fill="#A259FF"/><path d="M8 8a4 4 0 004 4h4a4 4 0 000-8H8z" fill="#F24E1E"/></svg>
+            </div>
+            <span class="integration-card__name">Figma</span>
+            <span class="integration-card__status">Phase 2</span>
+          </div>
+          <div class="integration-card">
+            <div class="integration-card__icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="#0052CC" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="integration-card__name">Jira</span>
+            <span class="integration-card__status">Phase 3</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PRICING ==================== -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="pricing__header">
+          <p class="eyebrow">Pricing</p>
+          <h2 class="h-section">Per team, not per seat.</h2>
+          <p class="p-large">Lower friction, higher clarity. Every plan includes unlimited users within the team.</p>
+        </div>
+        <div class="pricing__grid">
+          <div class="price-card">
+            <span class="price-card__name">Free</span>
+            <span class="price-card__desc">Try before you commit</span>
+            <span class="price-card__price">$0</span>
+            <span class="price-card__period">forever</span>
+            <div class="price-card__features">
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                1 team
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                14-day history
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Basic flow metrics
+              </div>
+            </div>
+            <a href="#cta" class="btn btn--outline price-card__btn">Start free</a>
+          </div>
+
+          <div class="price-card price-card--featured">
+            <span class="price-card__name">Team</span>
+            <span class="price-card__desc">For teams ready to ship better</span>
+            <span class="price-card__price">$49</span>
+            <span class="price-card__period">per team / month</span>
+            <div class="price-card__features">
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                3 integrations
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                6-month history
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                AI retro generation
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Health audit
+              </div>
+            </div>
+            <a href="#cta" class="btn btn--orange price-card__btn">Get early access</a>
+          </div>
+
+          <div class="price-card">
+            <span class="price-card__name">Pro</span>
+            <span class="price-card__desc">Full intelligence layer</span>
+            <span class="price-card__price">$99</span>
+            <span class="price-card__period">per team / month</span>
+            <div class="price-card__features">
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                All integrations
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                12-month history
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Browser extension
+              </div>
+              <div class="price-card__feature">
+                <svg class="price-card__check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Slack + AI Coach
+              </div>
+            </div>
+            <a href="#cta" class="btn btn--outline price-card__btn">Contact us</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FINAL CTA ==================== -->
+    <section class="final-cta" id="cta">
+      <div class="final-cta__num">T</div>
+      <div class="final-cta__content">
+        <p class="eyebrow">What's Next</p>
+        <h2 class="h-display">Find your rhythm.</h2>
+        <p class="p-large">
+          Join the early access list. Be one of the first teams to see across every tool and ship with clarity.
+        </p>
+        <a href="#" class="btn btn--primary btn--large">
+          Get early access
+          <svg class="btn__arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__logo">
+          <span class="nav__logo-mark"></span>
+          TEMPO
+        </div>
+        <div class="footer__columns">
+          <div>
+            <p class="footer__col-title">Product</p>
+            <div class="footer__col-links">
+              <a href="#how" class="footer__col-link" data-underline-link>How it works</a>
+              <a href="#pricing" class="footer__col-link" data-underline-link>Pricing</a>
+              <a href="#" class="footer__col-link" data-underline-link>Integrations</a>
+              <a href="#" class="footer__col-link" data-underline-link>Changelog</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer__col-title">Company</p>
+            <div class="footer__col-links">
+              <a href="#" class="footer__col-link" data-underline-link>About</a>
+              <a href="#" class="footer__col-link" data-underline-link>Blog</a>
+              <a href="#" class="footer__col-link" data-underline-link>Careers</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer__col-title">Connect</p>
+            <div class="footer__col-links">
+              <a href="#" class="footer__col-link" data-underline-link>Twitter/X</a>
+              <a href="#" class="footer__col-link" data-underline-link>LinkedIn</a>
+              <a href="#" class="footer__col-link" data-underline-link>GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span class="footer__copy">2026 TEMPO. Delivery intelligence for product teams.</span>
+        <div class="footer__bottom-links">
+          <a href="#" class="footer__bottom-link">Privacy</a>
+          <a href="#" class="footer__bottom-link">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script>
+    gsap.registerPlugin(ScrollTrigger, SplitText);
+
+    // ---- Smooth Scroll (CSS-based, no Lenis for compatibility) ----
+    // Lenis disabled for maximum compatibility. Using CSS scroll-behavior instead.
+    document.documentElement.style.scrollBehavior = 'smooth';
+
+    // ---- No loader - direct init ----
+
+    // ---- Navigation scroll state ----
+    function initNavScroll() {
+      const nav = document.getElementById('nav');
+      ScrollTrigger.create({
+        start: 'top -80',
+        onUpdate: (self) => {
+          if (self.scroll() > 80) {
+            nav.classList.add('nav--scrolled');
+          } else {
+            nav.classList.remove('nav--scrolled');
+          }
+        }
+      });
+    }
+
+    // ---- Elements Reveal on Scroll (OSMO) ----
+    function initContentRevealScroll() {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const ctx = gsap.context(() => {
+        document.querySelectorAll('[data-reveal-group]').forEach(groupEl => {
+          const groupStaggerSec = (parseFloat(groupEl.getAttribute('data-stagger')) || 100) / 1000;
+          const groupDistance = groupEl.getAttribute('data-distance') || '2em';
+          const triggerStart = groupEl.getAttribute('data-start') || 'top 85%';
+          const animDuration = 0.8;
+          const animEase = "power4.inOut";
+
+          if (prefersReduced) {
+            gsap.set(groupEl, { clearProps: 'all', y: 0, autoAlpha: 1 });
+            return;
+          }
+
+          const directChildren = Array.from(groupEl.children).filter(el => el.nodeType === 1);
+          if (!directChildren.length) {
+            gsap.set(groupEl, { y: groupDistance, autoAlpha: 0 });
+            ScrollTrigger.create({
+              trigger: groupEl,
+              start: triggerStart,
+              once: true,
+              onEnter: () => gsap.to(groupEl, {
+                y: 0, autoAlpha: 1, duration: animDuration, ease: animEase,
+                onComplete: () => gsap.set(groupEl, { clearProps: 'all' })
+              })
+            });
+            return;
+          }
+
+          const slots = [];
+          directChildren.forEach(child => {
+            const nestedGroup = child.matches?.('[data-reveal-group-nested]') ? child : child.querySelector?.(':scope [data-reveal-group-nested]');
+            if (nestedGroup) {
+              const includeParent = child.getAttribute('data-ignore') === 'false' || nestedGroup.getAttribute('data-ignore') === 'false';
+              slots.push({ type: 'nested', parentEl: child, nestedEl: nestedGroup, includeParent });
+            } else {
+              slots.push({ type: 'item', el: child });
+            }
+          });
+
+          slots.forEach(slot => {
+            if (slot.type === 'item') {
+              const d = slot.el.getAttribute('data-distance') || groupDistance;
+              gsap.set(slot.el, { y: d, autoAlpha: 0 });
+            } else {
+              if (slot.includeParent) gsap.set(slot.parentEl, { y: groupDistance, autoAlpha: 0 });
+              const nestedD = slot.nestedEl.getAttribute('data-distance') || groupDistance;
+              Array.from(slot.nestedEl.children).forEach(target => gsap.set(target, { y: nestedD, autoAlpha: 0 }));
+            }
+          });
+
+          ScrollTrigger.create({
+            trigger: groupEl,
+            start: triggerStart,
+            once: true,
+            onEnter: () => {
+              const tl = gsap.timeline();
+              slots.forEach((slot, slotIndex) => {
+                const slotTime = slotIndex * groupStaggerSec;
+                if (slot.type === 'item') {
+                  tl.to(slot.el, {
+                    y: 0, autoAlpha: 1, duration: animDuration, ease: animEase,
+                    onComplete: () => gsap.set(slot.el, { clearProps: 'all' })
+                  }, slotTime);
+                } else {
+                  if (slot.includeParent) {
+                    tl.to(slot.parentEl, { y: 0, autoAlpha: 1, duration: animDuration, ease: animEase, onComplete: () => gsap.set(slot.parentEl, { clearProps: 'all' }) }, slotTime);
+                  }
+                  const nestedMs = parseFloat(slot.nestedEl.getAttribute('data-stagger'));
+                  const nestedStaggerSec = isNaN(nestedMs) ? groupStaggerSec : nestedMs / 1000;
+                  Array.from(slot.nestedEl.children).forEach((nestedChild, nestedIndex) => {
+                    tl.to(nestedChild, { y: 0, autoAlpha: 1, duration: animDuration, ease: animEase, onComplete: () => gsap.set(nestedChild, { clearProps: 'all' }) }, slotTime + nestedIndex * nestedStaggerSec);
+                  });
+                }
+              });
+            }
+          });
+        });
+      });
+      return () => ctx.revert();
+    }
+
+    // ---- Highlight Text on Scroll (OSMO) ----
+    function initHighlightText() {
+      document.querySelectorAll("[data-highlight-text]").forEach((heading) => {
+        const scrollStart = heading.getAttribute("data-highlight-scroll-start") || "top 90%";
+        const scrollEnd = heading.getAttribute("data-highlight-scroll-end") || "center 40%";
+        const fadedValue = heading.getAttribute("data-highlight-fade") || 0.15;
+        const staggerValue = heading.getAttribute("data-highlight-stagger") || 0.1;
+        new SplitText(heading, {
+          type: "words, chars",
+          autoSplit: true,
+          onSplit(self) {
+            gsap.context(() => {
+              gsap.timeline({
+                scrollTrigger: {
+                  scrub: true,
+                  trigger: heading,
+                  start: scrollStart,
+                  end: scrollEnd,
+                }
+              }).from(self.chars, {
+                autoAlpha: fadedValue,
+                stagger: staggerValue,
+                ease: "linear"
+              });
+            });
+          }
+        });
+      });
+    }
+
+    // ---- Number Odometer (OSMO) ----
+    function initNumberOdometer() {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const initFlag = 'data-odometer-initialized';
+      const defaults = { duration: 1, ease: 'power3.out', elementStagger: 0.1, digitStagger: 0.04, revealDuration: 0.5, revealEase: 'power2.out', triggerStart: 'top 80%', staggerOrder: 'left', digitCycles: 2 };
+
+      document.querySelectorAll('[data-odometer-group]').forEach(group => {
+        if (group.hasAttribute(initFlag)) return;
+        group.setAttribute(initFlag, '');
+        const elements = Array.from(group.querySelectorAll('[data-odometer-element]'));
+        if (!elements.length || prefersReducedMotion) return;
+
+        const elementData = elements.map(el => {
+          const originalText = el.textContent.trim();
+          const duration = parseFloat(el.getAttribute('data-odometer-duration')) || defaults.duration;
+          const step = getLineHeightRatio(el);
+          let segments = parseSegments(originalText);
+          segments = mapStartDigits(segments, 0);
+          const { rollers } = buildRollerDOM(el, segments, step, false);
+          return { el, rollers, duration, step, revealData: [], originalText };
+        });
+
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: group, start: defaults.triggerStart, once: true },
+          onComplete() { elementData.forEach(({ el, originalText }) => cleanupElement(el, originalText)); }
+        });
+
+        elementData.forEach((data, orderIdx) => {
+          const { rollers, duration } = data;
+          const offset = orderIdx * defaults.elementStagger;
+          rollers.forEach(({ roller, targetPos }, digitIdx) => {
+            const reversedIdx = rollers.length - 1 - digitIdx;
+            tl.to(roller, { y: -targetPos * data.step + 'em', duration, ease: defaults.ease, force3D: true }, offset + reversedIdx * defaults.digitStagger);
+          });
+        });
+      });
+
+      function getLineHeightRatio(el) { const cs = getComputedStyle(el); const lh = cs.lineHeight; return lh === 'normal' ? 1.2 : parseFloat(lh) / parseFloat(cs.fontSize); }
+      function parseSegments(text) { return [...text].map(char => ({ type: /\d/.test(char) ? 'digit' : 'static', char })); }
+      function mapStartDigits(segments, startValue) {
+        const digitSlots = segments.filter(s => s.type === 'digit');
+        const padded = String(Math.floor(Math.abs(startValue))).padStart(digitSlots.length, '0').slice(-digitSlots.length);
+        let di = 0;
+        return segments.map(s => s.type === 'digit' ? { ...s, startDigit: parseInt(padded[di++], 10) } : s);
+      }
+      function buildRollerDOM(el, segments, step) {
+        el.innerHTML = '';
+        const rollers = [];
+        const totalCells = 10 * defaults.digitCycles;
+        segments.forEach(seg => {
+          if (seg.type === 'static') {
+            const span = document.createElement('span');
+            span.setAttribute('data-odometer-part', 'static');
+            span.style.height = step + 'em';
+            span.style.lineHeight = step;
+            span.textContent = seg.char;
+            el.appendChild(span);
+            return;
+          }
+          const mask = document.createElement('span');
+          mask.setAttribute('data-odometer-part', 'mask');
+          mask.style.height = step + 'em';
+          mask.style.lineHeight = step;
+          const roller = document.createElement('span');
+          roller.setAttribute('data-odometer-part', 'roller');
+          roller.style.lineHeight = step;
+          const digits = [];
+          for (let d = 0; d < totalCells; d++) { digits.push(d % 10); }
+          roller.textContent = digits.join('\n');
+          mask.appendChild(roller);
+          el.appendChild(mask);
+          const startDigit = seg.startDigit || 0;
+          gsap.set(roller, { y: -startDigit * step + 'em' });
+          const endDigit = parseInt(seg.char, 10);
+          const targetPos = endDigit > startDigit ? endDigit : 10 + endDigit;
+          rollers.push({ roller, targetPos });
+        });
+        return { rollers, revealEls: [] };
+      }
+      function cleanupElement(el, originalText) {
+        el.style.overflow = '';
+        const digits = [...originalText].filter(c => /\d/.test(c));
+        let di = 0;
+        el.querySelectorAll('[data-odometer-part="mask"]').forEach(mask => {
+          const roller = mask.querySelector('[data-odometer-part="roller"]');
+          if (roller) roller.remove();
+          mask.textContent = digits[di++] || '';
+        });
+      }
+    }
+
+    // ---- Initialize all animations ----
+    function initAllAnimations() {
+      initNavScroll();
+      // initContentRevealScroll(); // OSMO reveal — enable in production
+      initHighlightText();
+      // initNumberOdometer(); // OSMO odometer — enable in production
+    }
+
+    // ---- Boot ----
+    if (document.readyState === 'loading') {
+      document.addEventListener("DOMContentLoaded", () => initAllAnimations());
+    } else {
+      initAllAnimations();
+    }
+  </script>
+</body>
+</html>
