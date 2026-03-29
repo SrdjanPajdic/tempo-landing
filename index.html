@@ -7,9 +7,8 @@
   <meta name="description" content="TEMPO connects Linear, GitHub, Notion, and Slack into one intelligence layer. See how your team actually ships.">
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
 
   <!-- GSAP -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -37,8 +36,8 @@
       --c-gray-800: #333231;
 
       /* Typography */
-      --font-heading: 'Space Grotesk', -apple-system, sans-serif;
-      --font-body: 'Inter', -apple-system, sans-serif;
+      --font-heading: 'Satoshi', -apple-system, sans-serif;
+      --font-body: 'Satoshi', -apple-system, sans-serif;
 
       /* Spacing */
       --section-pad: clamp(6rem, 12vw, 12rem);
@@ -1496,42 +1495,47 @@
         <div class="integrations__grid">
           <div class="integration-card">
             <div class="integration-card__icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M3 7l6 4.5L3 16V7z" fill="#5E6AD2"/><path d="M21 7l-6 4.5L21 16V7z" fill="#5E6AD2"/><path d="M9 9l3 2.25L15 9v6l-3 2.25L9 15V9z" fill="#5E6AD2"/></svg>
+              <img src="https://cdn.simpleicons.org/linear/5E6AD2" alt="Linear" width="32" height="32">
             </div>
             <span class="integration-card__name">Linear</span>
             <span class="integration-card__status integration-card__status--live">Phase 1</span>
           </div>
           <div class="integration-card">
             <div class="integration-card__icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.49.5.09.682-.218.682-.483 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z" fill="#333"/></svg>
+              <img src="https://cdn.simpleicons.org/github/0A0A0A" alt="GitHub" width="32" height="32">
             </div>
             <span class="integration-card__name">GitHub</span>
             <span class="integration-card__status integration-card__status--live">Phase 1</span>
           </div>
           <div class="integration-card">
             <div class="integration-card__icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4V4z" fill="#fff" stroke="#333" stroke-width="1.5"/><path d="M8 10h8M8 14h5" stroke="#333" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <img src="https://cdn.simpleicons.org/notion/0A0A0A" alt="Notion" width="32" height="32">
             </div>
             <span class="integration-card__name">Notion</span>
             <span class="integration-card__status integration-card__status--live">Phase 1</span>
           </div>
           <div class="integration-card">
             <div class="integration-card__icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M5.042 15.165a2.528 2.528 0 01-2.52 2.523A2.528 2.528 0 010 15.165a2.527 2.527 0 012.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 012.521-2.52 2.527 2.527 0 012.521 2.52v6.313A2.528 2.528 0 018.834 24a2.528 2.528 0 01-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 01-2.521-2.52A2.528 2.528 0 018.834 0a2.528 2.528 0 012.521 2.522v2.52H8.834zm0 1.271a2.527 2.527 0 012.521 2.521 2.527 2.527 0 01-2.521 2.521H2.522A2.528 2.528 0 010 8.834a2.528 2.528 0 012.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 012.522-2.521A2.528 2.528 0 0124 8.834a2.527 2.527 0 01-2.522 2.521h-2.522V8.834zm-1.268 0a2.527 2.527 0 01-2.523 2.521 2.527 2.527 0 01-2.52-2.521V2.522A2.527 2.527 0 0115.165 0a2.528 2.528 0 012.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 012.523 2.522A2.528 2.528 0 0115.165 24a2.527 2.527 0 01-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 01-2.52-2.523 2.526 2.526 0 012.52-2.52h6.313A2.527 2.527 0 0124 15.165a2.528 2.528 0 01-2.522 2.523h-6.313z" fill="#E01E5A"/></svg>
+              <svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z" fill="#E01E5A"/>
+                <path d="M8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.527 2.527 0 0 1 2.521 2.521 2.527 2.527 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312z" fill="#36C5F0"/>
+                <path d="M18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.527 2.527 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.527 2.527 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312z" fill="#2EB67D"/>
+                <path d="M15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" fill="#ECB22E"/>
+              </svg>
             </div>
             <span class="integration-card__name">Slack</span>
             <span class="integration-card__status">Phase 2</span>
           </div>
           <div class="integration-card">
             <div class="integration-card__icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z" fill="#F24E1E" opacity="0.3"/><path d="M8 16a4 4 0 004-4V8H8a4 4 0 000 8z" fill="#A259FF"/><path d="M8 8a4 4 0 004 4h4a4 4 0 000-8H8z" fill="#F24E1E"/></svg>
+              <img src="https://cdn.simpleicons.org/figma/F24E1E" alt="Figma" width="32" height="32">
             </div>
             <span class="integration-card__name">Figma</span>
             <span class="integration-card__status">Phase 2</span>
           </div>
           <div class="integration-card">
             <div class="integration-card__icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="#0052CC" stroke-width="2" stroke-linecap="round"/></svg>
+              <img src="https://cdn.simpleicons.org/jira/0052CC" alt="Jira" width="32" height="32">
             </div>
             <span class="integration-card__name">Jira</span>
             <span class="integration-card__status">Phase 3</span>
