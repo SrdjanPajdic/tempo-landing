@@ -367,6 +367,32 @@
     @media (max-width: 767px) {
       .nav__links { gap: 1rem; }
       .nav__link--hide-mobile { display: none; }
+
+      .hero {
+        padding-top: 5rem;
+        justify-content: flex-end;
+      }
+
+      .hero__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+
+      .hero__description {
+        max-width: 100%;
+      }
+
+      .hero__cta {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      .hero__cta .btn {
+        width: 100%;
+        justify-content: center;
+      }
     }
 
     /* ============================================
@@ -548,7 +574,7 @@
       font-weight: 300;
       line-height: 0.85;
       letter-spacing: -0.04em;
-      color: var(--c-black);
+      color: var(--c-orange);
       opacity: 1;
       margin-bottom: 1.5rem;
     }
